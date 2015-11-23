@@ -1,17 +1,17 @@
 # dataminerbackfiller
 
-dataminerbackfiller listens for changes to a AWS Dynamodb table, extracts as JSON data and mirrors its to a p4 depot
+dataminerbackfiller listens for changes to a AWS Dynamodb table made from dataminer exports, extracts these as JSON data and mirrors them to p4.
 
 #####SETUP (OS -X) & LAUNCH
 
 This project uses [expressjs generator](http://expressjs.com/starter/installing.html).
-
-$ *sudo npm install express-generator -g*
+<pre>
+$ sudo npm install express-generator -g
+</pre>
 
 To generate boilerplate.
-
-$ *express dataminerbackfiller*
- <pre>
+<pre>
+$express dataminerbackfiller
 create : dataminerbackfiller
 create : dataminerbackfiller/package.json
 create : dataminerbackfiller/app.js
