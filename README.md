@@ -12,29 +12,24 @@ To generate boilerplate.
 
 $ *express dataminerbackfiller*
 
->create : dataminerbackfiller
-   create : dataminerbackfiller/package.json
-   create : dataminerbackfiller/app.js
-   create : dataminerbackfiller/public
-   create : dataminerbackfiller/public/javascripts
-   create : dataminerbackfiller/public/images
-   create : dataminerbackfiller/public/stylesheets
-   create : dataminerbackfiller/public/stylesheets/style.css
-   create : dataminerbackfiller/routes
-   create : dataminerbackfiller/routes/index.js
-   create : dataminerbackfiller/routes/users.js
-   create : dataminerbackfiller/views
-   create : dataminerbackfiller/views/index.jade
-   create : dataminerbackfiller/views/layout.jade
-   create : dataminerbackfiller/views/error.jade
-   create : dataminerbackfiller/bin
-   create : dataminerbackfiller/bin/www
+>   create : dataminerbackfiller
+>   create : dataminerbackfiller/package.json
+>   create : dataminerbackfiller/app.js
+>   create : dataminerbackfiller/public
+>   create : dataminerbackfiller/public/javascripts
+>   create : dataminerbackfiller/public/images
+>   create : dataminerbackfiller/public/stylesheets
+>   create : dataminerbackfiller/public/stylesheets/style.css
+>   create : dataminerbackfiller/routes
+>   create : dataminerbackfiller/routes/index.js
+>   create : dataminerbackfiller/routes/users.js
+>   create : dataminerbackfiller/views
+>   create : dataminerbackfiller/views/index.jade
+>   create : dataminerbackfiller/views/layout.jade
+>   create : dataminerbackfiller/views/error.jade
+>   create : dataminerbackfiller/bin
+>   create : dataminerbackfiller/bin/www
 
-   install dependencies:
-     $ cd dataminerbackfiller && npm install
-
-   run the app:
-     $ DEBUG=dataminerbackfiller:* npm start
 
 $ *cd dataminerbackfiller/*
 
@@ -55,7 +50,9 @@ Configure p4.
 $ *p4 set P4PORT=ec2-xx-xx-xx-xxx.us-west-1.compute.amazonaws.com:1666*
 $ *p4 set P4USER=cmoore*
 $ *p4 set P4CLIENT=cmoore_MBP*
-$ *npm install*
+
+Install dependencies:
+$ *cd dataminerbackfiller && npm install*
 
 To launch:
 
