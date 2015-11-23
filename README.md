@@ -2,7 +2,7 @@
 
 dataminerbackfiller listens for changes to a AWS Dynamodb table, extracts as JSON data and mirrors its to a p4 depot
 
-######SETUP (OS -X) & LAUNCH
+#####SETUP (OS -X) & LAUNCH
 
 This project uses [expressjs generator](http://expressjs.com/starter/installing.html).
 
@@ -61,7 +61,7 @@ To launch:
 
 $ _DEBUG=dataminerbackfiller:* npm start_
 
-######SETUP (EC2 Linux AMI)
+#####SETUP (EC2 Linux AMI) & LAUNCH
 
 update npm
 
@@ -96,11 +96,10 @@ $ *p4 set P4PORT=ec2-xx-xx-xx-xxx.us-west-1.compute.amazonaws.com:1666*
 $ *p4 set P4USER=cmoore*
 $ *p4 set P4CLIENT=dataminer_ec2*
 $ *p4 login -p*
-
 This outputs a 32 character ticket value.  
 
 $ *touch $HOME/.p4tickets*
-$ *echo "TICKETCUTANDPASTE" > /home/ec2-user/.p4tickets*
+$ *echo "32CHARTICKETVALUE" > /home/ec2-user/.p4tickets*
 $ *p4 login*
 User cmoore logged in.
 
