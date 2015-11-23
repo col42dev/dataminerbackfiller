@@ -1,6 +1,7 @@
 var p4 = require('node-perforce');
 var AWS = require('aws-sdk');
 var fs = require('fs');
+var http = require('http');
 
 
 
@@ -10,6 +11,7 @@ var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 var kRulesDataDepotPath = '//ST_Prototypes/ML/SliceOfMine/Assets/Resources/RulesData/';
 var myjsonkeys = ['51viy', '1a9rm', '1184a', '4rrxs', '4xb60', '339pe', '22cm6', '2hewe', '28kay', '457gd'];
 var workingCL = null;
+var lastDynamoDBExportDate = ''; // flag to store myjson polling result. 
 
 
 console.log('started backfiller...');
@@ -18,7 +20,7 @@ function update() {
 	var syncedFileCount = 0;
 		myjsonkeys.forEach( function(myjsonkey) {
 			p4.sync({files: [kRulesDataDepotPath+myjsonkey+'.json']}, function(err, result) {
-			  	//if (err) return console.log(err);
+			  	if (err)  console.log(err);
 			  	syncedFileCount += 1;
 			  	if (syncedFileCount == myjsonkeys.length) {
 			  		createCL();
@@ -152,12 +154,62 @@ function submitUpdates( fstatResults) {
 
 
 // poll AWS for changes every 5 minutes.
-update();
+pollForUpdatedExport();
 
 
 setInterval(function() { 
- 	update();
-}, 1000 * 60 * 5);
+
+	pollForUpdatedExport();
+
+ 	
+}, 1000 * 60 * 1);
+
+
+function pollForUpdatedExport() {
+	
+	var options = {
+	  host: 'api.myjson.com',
+	  port: 80,
+	  path: '/bins/3ywwt?pretty=1',
+	  method: 'GET',
+	  headers: {'Content-Type': 'application/json', 'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'}
+	};
+
+	http.request(options, function(response) {
+		  var str = '';
+
+		  response.setEncoding('utf8');
+
+		  response.on('data', function (chunk) {
+		    str += chunk;
+		  });
+
+		  response.on('error', function(e) {
+  				console.log('problem with request: ' + e.message);
+		  });
+
+		  response.on('end', function () {
+		  	var parsedstr = JSON.parse(str);
+
+		    if ( !parsedstr.hasOwnProperty('status')){
+
+		    	var thisLastDynamoDBExportDate = parsedstr;
+		    	//console.log('str:' + str);
+		    	//console.log(lastDynamoDBExportDate + '!==' + thisLastDynamoDBExportDate.lastDynamoDBExportDate);
+			    if (lastDynamoDBExportDate !== thisLastDynamoDBExportDate.lastDynamoDBExportDate) {
+			    	lastDynamoDBExportDate = thisLastDynamoDBExportDate.lastDynamoDBExportDate;
+			    	console.log('new export date:' + lastDynamoDBExportDate);
+
+			    	update();
+
+			    } else {
+			    	process.stdout.write('.');
+			    }
+			}
+		  });
+		}
+	).end();
+}
 
 
 
