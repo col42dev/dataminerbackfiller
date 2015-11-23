@@ -1,6 +1,6 @@
-# dataminerbackfiller
+# backfiller
 
-dataminerbackfiller listens for changes to a AWS Dynamodb table made from dataminer exports, extracts these as JSON data and mirrors them to p4.
+backfiller run in conjunction with dataminer, it listens for changes to a AWS Dynamodb table genrated from dataminer exports, extracts these as JSON data and mirrors them to p4.
 
 #####SETUP (OS -X) & LAUNCH
 
