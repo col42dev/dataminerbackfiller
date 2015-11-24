@@ -131,3 +131,13 @@ CTRL-A then hit D
 $ ps -A
 25910 pts/2    00:00:00 node
 </pre>
+
+To reattach to this screen
+<pre>
+$ screen -r
+There are several suitable screens on:
+        26054.perforce  (Detached)
+        25889.pts-0.ip-172-31-1-196     (Detached)
+Type "screen [-d] -r [pid.]tty.host" to resume one of them.
+$ screen -r  25889.pts-0.ip-172-31-1-196
+</pre>
