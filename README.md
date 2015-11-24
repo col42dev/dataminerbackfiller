@@ -1,6 +1,6 @@
 # backfiller
 
-backfiller run in conjunction with [dataminer](https://github.com/col42dev/dataminer), it listens for changes to a AWS Dynamodb table genrated from dataminer exports, extracts these as JSON data and mirrors them to p4.
+backfiller runs in conjunction with [dataminer](https://github.com/col42dev/dataminer), it listens for changes to a AWS Dynamodb table genrated from dataminer exports, extracts these as JSON data and mirrors them to p4.
 
 #####SETUP (OS -X) & LAUNCH
 
@@ -37,8 +37,8 @@ $ cd dataminerbackfiller/
 Install [nodejs AWS SDK](https://aws.amazon.com/sdk-for-node-js/)
 <pre>
 $ npm install aws-sdk
->dataminerbackfiller@0.0.0 
->── aws-sdk@2.2.18  extraneous
+dataminerbackfiller@0.0.0 
+── aws-sdk@2.2.18  extraneous
 </pre>
 
 Install [node-perforce](https://www.npmjs.com/package/node-perforce) module
@@ -71,12 +71,12 @@ $ DEBUG=dataminerbackfiller:* npm start
 update npm
 <pre>
 $ npm -v
->1.3.4
+1.3.4
     
 $ sudo npm install npm -g
     
 $ npm -v
->2.13.0
+2.13.0
 </pre>    
 
 [update nodejs](http://stackoverflow.com/questions/8191459/how-to-update-node-js)
@@ -116,8 +116,8 @@ User cmoore logged in.
 
 <pre>
 $ npm install aws-sdk
->dataminerbackfiller@0.0.0 
->── aws-sdk@2.2.18  extraneous
+dataminerbackfiller@0.0.0 
+── aws-sdk@2.2.18  extraneous
 
 $ npm install
 </pre>
