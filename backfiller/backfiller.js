@@ -189,23 +189,32 @@ function pollForUpdatedExport() {
 		  });
 
 		  response.on('end', function () {
-		  	var parsedstr = JSON.parse(str);
 
-		    if ( !parsedstr.hasOwnProperty('status')){
+			  	var parsedstr = '';
+			  	try {
+			  		parsedstr = JSON.parse(str);
+			  	} catch (ex) {
+    				console.log('failed to parse str' + ex.message);
+  				}
 
-		    	var thisLastDynamoDBExportDate = parsedstr;
-		    	//console.log('str:' + str);
-		    	//console.log(lastDynamoDBExportDate + '!==' + thisLastDynamoDBExportDate.lastDynamoDBExportDate);
-			    if (lastDynamoDBExportDate !== thisLastDynamoDBExportDate.lastDynamoDBExportDate) {
-			    	lastDynamoDBExportDate = thisLastDynamoDBExportDate.lastDynamoDBExportDate;
-			    	console.log('new export date:' + lastDynamoDBExportDate);
+  				if (parsedstr !== '') {
+				    if ( !parsedstr.hasOwnProperty('status')){
 
-			    	update();
+				    	var thisLastDynamoDBExportDate = parsedstr;
+				    	//console.log('str:' + str);
+				    	//console.log(lastDynamoDBExportDate + '!==' + thisLastDynamoDBExportDate.lastDynamoDBExportDate);
+					    if (lastDynamoDBExportDate !== thisLastDynamoDBExportDate.lastDynamoDBExportDate) {
+					    	lastDynamoDBExportDate = thisLastDynamoDBExportDate.lastDynamoDBExportDate;
+					    	console.log('new export date:' + lastDynamoDBExportDate);
 
-			    } else {
-			    	process.stdout.write('.');
-			    }
-			}
+					    	update();
+
+					    } else {
+					    	process.stdout.write('.');
+					    }
+					}
+				}
+
 		  });
 		}
 	).end();
