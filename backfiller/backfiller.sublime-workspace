@@ -99,7 +99,7 @@
 			"file": "backfiller.js",
 			"settings":
 			{
-				"buffer_size": 6094,
+				"buffer_size": 6278,
 				"line_ending": "Unix"
 			}
 		},
@@ -111,6 +111,14 @@
 			"settings":
 			{
 				"buffer_size": 1133,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/colinmoore/Dev/dataminerbackfiller/dataminerbackfiller/.gitignore",
+			"settings":
+			{
+				"buffer_size": 226,
 				"line_ending": "Unix"
 			}
 		}
@@ -152,7 +160,8 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/colinmoore/Dev/dataminerbackfiller/dataminerbackfiller"
+		"/Users/colinmoore/Dev/dataminerbackfiller/dataminerbackfiller",
+		"/Users/colinmoore/Dev/dataminerbackfiller/dataminerbackfiller/backfiller"
 	],
 	"file_history":
 	[
@@ -465,7 +474,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -474,15 +483,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6094,
+						"buffer_size": 6278,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								119,
-								119
+								414,
+								414
 							]
 						],
 						"settings":
@@ -494,7 +503,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -510,13 +519,41 @@
 						"selection":
 						[
 							[
-								1132,
-								1132
+								432,
+								286
 							]
 						],
 						"settings":
 						{
 							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Users/colinmoore/Dev/dataminerbackfiller/dataminerbackfiller/.gitignore",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 226,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								184,
+								184
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
