@@ -4,12 +4,11 @@ var fs = require('fs');
 var http = require('http');
 
 
-
 AWS.config.region = 'eu-west-1';
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: ''});
 var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 var kRulesDataDepotPath = '//ST_Prototypes/ML/SliceOfMine/Assets/Resources/RulesData/';
-var myjsonkeys = ['51viy', '1a9rm', '1184a', '4rrxs', '4xb60', '339pe', '22cm6', '2hewe', '28kay', '457gd'];
+var myjsonkeys = ['oxtnpr4', 'omsznkc', 'o5onybx', 'oevkvmv', 'otw4nb', 'od3otrm', 'oz4n58j', 'otdvox9', 'os7bs54', 'o7sqgzj'];
 var workingCL = null;
 var lastDynamoDBExportDate = ''; // flag to store myjson polling result. 
 
@@ -21,8 +20,6 @@ pollForUpdatedExport();
 setInterval(function() { 
 	pollForUpdatedExport();
 }, 1000 * 60 * 1);
-
-
 
 
 function pollForUpdatedExport() {
@@ -73,7 +70,6 @@ function pollForUpdatedExport() {
 					    	process.stdout.write('.'); // no chnage in last export data stampt
 					    }
 					} else {
-						//process.stdout.write('y');
 						console.log(parsedstr); // status error
 					}
 				} else {
@@ -101,6 +97,7 @@ function syncAll() {
 
 // create pending CL with all JSON rules file open in it.
 function createCL() {
+
 
 	workingCL = null;
 
@@ -144,6 +141,7 @@ function fstatAll() {
 		  	editedFileCount += 1;
 		  	if (editedFileCount === myjsonkeys.length) {
 		  		getJSONfromAWS( fstats);
+
 		  	}
 		});
 	});
@@ -155,14 +153,14 @@ function getJSONfromAWS(fstatResults) {
 	var getItemCompletedCount = 0;
 	myjsonkeys.forEach( function(myjsonkey) {
 	 	var table = new AWS.DynamoDB({params: {TableName: 'ptownrules'}}); 
-	 	var keyname =  'https://api.myjson.com/bins/'+myjsonkey+'?pretty=1';
+	 	var keyname =  myjsonkey;
 	    table.getItem({Key: {ptownrules: {S: keyname}}}, function(err, data) {
 	    	if(err) {
 			 	return console.log('getJSON:' + err);
 			}
 			fstatResults[myjsonkey].getContent = data.Item.data.S;
 	    	getItemCompletedCount ++;
-	    	if (getItemCompletedCount === myjsonkeys.length) {
+	    	if (getItemCompletedCount === myjsonkeys.length) {	
 		  		writeUpdates( fstatResults);
 		  	}
 	    });  

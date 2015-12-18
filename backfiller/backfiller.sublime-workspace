@@ -99,18 +99,15 @@
 			"file": "backfiller.js",
 			"settings":
 			{
-				"buffer_size": 6278,
+				"buffer_size": 6914,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "scp -r -i ../../AWS/PTownPerforce.pem ./*.js ec2-user@ec2-54-67-81-203.us-west-1.compute.amazonaws.com:/home/ec2-user/dataminer/backfiller/.\nscp -r -i ../../AWS/PTownPerforce.pem ./*.json ec2-user@ec2-54-67-81-203.us-west-1.compute.amazonaws.com:/home/ec2-user/dataminer/backfiller/.\n\n\nscp -r -i ../../AWS/PTownPerforce.pem ./backfiller ec2-user@ec2-54-67-81-203.us-west-1.compute.amazonaws.com:/home/ec2-user/dataminer/backfiller/.\nscp -r -i ../../AWS/PTownPerforce.pem ./public ec2-user@ec2-54-67-81-203.us-west-1.compute.amazonaws.com:/home/ec2-user/dataminer/backfiller/.\nscp -r -i ../../AWS/PTownPerforce.pem ./routes ec2-user@ec2-54-67-81-203.us-west-1.compute.amazonaws.com:/home/ec2-user/dataminer/routes/.\nscp -r -i ../../AWS/PTownPerforce.pem ./views ec2-user@ec2-54-67-81-203.us-west-1.compute.amazonaws.com:/home/ec2-user/dataminer/views/.\n\nscp -r -i ../../AWS/PTownPerforce.pem ./bin ec2-user@ec2-54-67-81-203.us-west-1.compute.amazonaws.com:/home/ec2-user/dataminer/backfiller/.\nscp -r -i ../../AWS/PTownPerforce.pem ./p4 ec2-user@ec2-54-67-81-203.us-west-1.compute.amazonaws.com:/home/ec2-user/dataminer/backfiller/.\n\n",
 			"file": "/Users/colinmoore/Dev/dataminerbackfiller/dataminerbackfiller/PTownPublish.sh",
-			"file_size": 1133,
-			"file_write_time": 130927491810000000,
 			"settings":
 			{
-				"buffer_size": 1133,
+				"buffer_size": 1000,
 				"line_ending": "Unix"
 			}
 		},
@@ -474,7 +471,7 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -483,15 +480,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6278,
+						"buffer_size": 6914,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								414,
-								414
+								1539,
+								1539
 							]
 						],
 						"settings":
@@ -503,7 +500,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -512,15 +509,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1133,
+						"buffer_size": 1000,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								432,
-								286
+								728,
+								728
 							]
 						],
 						"settings":
@@ -559,7 +556,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
