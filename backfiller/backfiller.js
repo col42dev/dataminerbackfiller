@@ -5,7 +5,7 @@ var http = require('http');
 
 
 AWS.config.region = 'eu-west-1';
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'eu-west-1:c2876904-2d5d-4448-9e5a-3bd3acd88ccf'});
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: ''});
 var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 var kRulesDataDepotPath = '//ST_Prototypes/ML/SliceOfMine/Assets/Resources/RulesData/';
 var dynamoDBKeys = [];
