@@ -1,6 +1,8 @@
 # backfiller
 
-backfiller runs in conjunction with [dataminer](https://github.com/col42dev/dataminer), it listens for changes to a AWS Dynamodb table genrated from dataminer exports, extracts these as JSON data and mirrors them to p4.
+backfiller runs in conjunction with [dataminer](https://github.com/col42dev/dataminer), it listens for changes to a AWS Dynamodb table genrated from dataminer exports, extracts these as JSON data and mirrors them to a p4 depot.
+
+backfiller is run on the pTown EC2 instance, but has no dependencies other than a node.js install.
 
 #####SETUP (OS -X) & LAUNCH
 
