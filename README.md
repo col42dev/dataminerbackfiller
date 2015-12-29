@@ -4,6 +4,8 @@ backfiller runs in conjunction with [dataminer](https://github.com/col42dev/data
 
 backfiller is run on the pTown EC2 instance, but has no dependencies other than a node.js install.
 
+GET for log stream ...:5500/backfillerapi/getlog 
+
 #####SETUP (OS -X) & LAUNCH
 
 This project uses [expressjs generator](http://expressjs.com/starter/installing.html).

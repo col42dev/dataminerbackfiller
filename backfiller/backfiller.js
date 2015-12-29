@@ -6,7 +6,7 @@ var http = require('http');
 
 
 AWS.config.region = 'eu-west-1';
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'eu-west-1:'});
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: ''});
 var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 var kRulesDataDepotPath = '//ST_Prototypes/ML/SliceOfMine/Assets/Resources/RulesData/';
 var dynamoDBKeys = [];
@@ -112,7 +112,7 @@ function syncAll() {
 			  	if (err)  {
 
 			  		var errorString = 'p4.sync error: ' + err;
-			  		if (errorString.indexOf('file(s) up') === -1) {
+			  		if (errorString.indexOf('file(s) up') === -1 &&  errorString.indexOf('no such file(s)') === -1) { //permissiable sync errors
 
 						processActive = false;
 			  			console.log('p4.sync error:' + err);
@@ -123,8 +123,7 @@ function syncAll() {
 			  	if (hasError === false) {
 					syncedFileCount += 1;
 			  	}
-			  	//postlog += 'syncedFileCount:' + syncedFileCount + ', dynamoDBKeys.length:' + dynamoDBKeys.length;
-			  	//console.log('syncedFileCount:' + syncedFileCount + ', dynamoDBKeys.length:' + dynamoDBKeys.length);
+
 			  	if (syncedFileCount == dynamoDBKeys.length) {
 			  		createCL();
 				}
