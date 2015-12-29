@@ -1,3 +1,4 @@
+
 var p4 = require('node-perforce');
 var AWS = require('aws-sdk');
 var fs = require('fs');
@@ -5,85 +6,74 @@ var http = require('http');
 
 
 AWS.config.region = 'eu-west-1';
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: ''});
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'eu-west-1:'});
 var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 var kRulesDataDepotPath = '//ST_Prototypes/ML/SliceOfMine/Assets/Resources/RulesData/';
 var dynamoDBKeys = [];
 var workingCL = null;
 var lastDynamoDBExportDate = ''; // flag to store myjson polling result. 
+var postlog = '';
 
+var processActive = false;
+var retryProcessTimeoutId = null;
 
 console.log('started backfiller...');
+postlog += '<b>started backfiller...</b><br/>';
 
+//
+module.exports = {
+	getlog: function() {
+		return postlog;
+	},
 
-// poll myjson for change in lastExportDateStamp endpoint which is updated with each dataminer export.
-pollForUpdatedExport();
-setInterval(function() { 
-	pollForUpdatedExport();
-}, 1000 * 60 * 1);
+	scan: function() {
 
-
-function pollForUpdatedExport() {
+		var d = new Date();
 	
-	var options = {
-	  host: 'api.myjson.com',
-	  port: 80,
-	  path: '/bins/3ywwt?pretty=1',
-	  method: 'GET',
-	  headers: {'Content-Type': 'application/json', 'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'}
-	};
+		if  (processActive === false) {
+			var log = '<b>starting process....</b>' + d.toString() + '<br/>';
+		
+			console.log(log);
+			postlog += log;
 
-	http.request(options, function(response) {
-		  var str = '';
-
-		  response.setEncoding('utf8');
-
-		  response.on('data', function (chunk) {
-		    str += chunk;
-		  });
-
-		  response.on('error', function(e) {
-  				console.log('problem with request: ' + e.message);
-		  });
-
-		  response.on('end', function () {
-
-			  	var parsedstr = '';
-			  	try {
-			  		parsedstr = JSON.parse(str);
-			  	} catch (ex) {
-    				console.log('failed to parse str: ' + ex.message);
-  				}
-
-  				if (parsedstr !== '') {
-				    if ( !parsedstr.hasOwnProperty('status')){
-
-				    	var thisLastDynamoDBExportDate = parsedstr;
-				    	//console.log('str:' + str);
-				    	//console.log(lastDynamoDBExportDate + '!==' + thisLastDynamoDBExportDate.lastDynamoDBExportDate);
-					    if (lastDynamoDBExportDate !== thisLastDynamoDBExportDate.lastDynamoDBExportDate) {
-					    	lastDynamoDBExportDate = thisLastDynamoDBExportDate.lastDynamoDBExportDate;
-					    	console.log('new export date:' + lastDynamoDBExportDate);
-
-					    	scanDynamoDBTable();
-
-					    } else {
-					    	process.stdout.write('.'); // no chnage in last export data stampt
-					    }
-					} else {
-						console.log(parsedstr); // status error
-					}
-				} else {
-					process.stdout.write('x'); // JSON parse failed.
-				}
-
-		  });
+	  	  scanDynamoDBTable();
+		} else {
+			if (retryProcessTimeoutId === null) {
+				postlog += '<b>process failed because backfiller export was already active, retry in 20 seconds.</b>' + d.toString() + '<br/>';
+				retryProcessTimeoutId = setTimeout( function() { 
+						retryProcess(processActive); 
+					}.bind(this),1000 * 20);
+			}
 		}
-	).end();
+	    return postlog;
+	  }
+};
+
+
+function retryProcess (isProcessActive) {
+  	var d = new Date();
+	
+	var log = '';
+	if  (isProcessActive === false) {
+		log = '<b>retrying process ....<b>' + d.toString() + '<br/>';
+	
+		console.log(log);
+		postlog += log;
+
+  	  	scanDynamoDBTable();
+  	} else {
+  		log = '<b>retrying failed because process was still active.<b>' + d.toString() + '<br/>';
+	
+  		console.log(log);
+		postlog += log;
+  	}
+  	retryProcessTimeoutId = null;
 }
 
 // scan dynomoDb to populate list of item key names
 function scanDynamoDBTable() {
+
+	processActive = true;
 	//http://www.markomedia.com.au/dynamodb-for-javascript-cheatsheet/
 	var params = {
 	    TableName : 'ptownrules',
@@ -96,11 +86,15 @@ function scanDynamoDBTable() {
 
 	dynamodbDoc.scan(params, function(err, data) {
 	    if (err) {
-	        console.log("Unable to query. Error:", JSON.stringify(err, null, 2));
+	        postlog += 'Unable to query. Error:' + JSON.stringify(err, null, 2) + '<br/>';
+	        console.log('Unable to query. Error:' + JSON.stringify(err, null, 2));
+	        processActive = false;
 	    } else {
-	        console.log("Query succeeded.");
+	        postlog += 'Query succeeded.' + '<br/>';
+	        console.log('Query succeeded.');
 	        data.Items.forEach(function(item) {
-	            console.log("item: " + item.ptownrules);
+	            postlog += 'item: ' + item.ptownrules + '<br/>';
+	            console.log('item: ' + item.ptownrules);
 	            dynamoDBKeys.push(item.ptownrules);
 	        });
 	        syncAll();
@@ -108,13 +102,29 @@ function scanDynamoDBTable() {
 	});
 }
 
+
 // Sync all JSON rules files in p4
 function syncAll() {
 	var syncedFileCount = 0;
 		dynamoDBKeys.forEach( function(myjsonkey) {
 			p4.sync({files: [kRulesDataDepotPath+myjsonkey+'.json']}, function(err, result) {
-			  	if (err)  console.log(err);
-			  	syncedFileCount += 1;
+				var hasError = false;
+			  	if (err)  {
+
+			  		var errorString = 'p4.sync error: ' + err;
+			  		if (errorString.indexOf('file(s) up') === -1) {
+
+						processActive = false;
+			  			console.log('p4.sync error:' + err);
+			  			postlog += 'p4.sync error:' + err + '<br/>';
+			  			hasError = true;
+			  		}
+			  	}
+			  	if (hasError === false) {
+					syncedFileCount += 1;
+			  	}
+			  	//postlog += 'syncedFileCount:' + syncedFileCount + ', dynamoDBKeys.length:' + dynamoDBKeys.length;
+			  	//console.log('syncedFileCount:' + syncedFileCount + ', dynamoDBKeys.length:' + dynamoDBKeys.length);
 			  	if (syncedFileCount == dynamoDBKeys.length) {
 			  		createCL();
 				}
@@ -127,16 +137,25 @@ function createCL() {
 
 	workingCL = null;
 
-	console.log('updating ...');
+	
+	postlog += 'createCL ...' + '<br/>';
+	console.log('createCL ...');
 	var editedFileCount = 0;
 	p4.changelist.create({description: '[SliceOfMine] automated rules JSON sync from AWS'}, function (err, changelist) {
-		if (err) return console.log(err);
+		if (err) {
+			processActive = false;
+			postlog += 'p4.changelist.create error:' + err + '<br/>';
+			return console.log('p4.changelist.create:' + err);
+		}
 		workingCL = changelist;
 		console.log('created changelist:', changelist);
+		postlog += 'created changelist:' + changelist + '<br/>';
+
 		dynamoDBKeys.forEach( function(myjsonkey) {
 
 			var filename = kRulesDataDepotPath+myjsonkey+'.json';
-				console.log("editing..." + filename);
+				console.log('editing...' + filename);
+				postlog += 'editing...' + filename + '<br/>';
 				p4.edit({files: [filename]}, function(errEdit) {
 					if (errEdit) { 
 							
@@ -146,6 +165,8 @@ function createCL() {
 								p4.add({files: [filename], changelist: changelist}, function(errAdd) {
 									if (errAdd) {
 										console.log('p4.add error: ' +errAdd);
+										postlog += 'p4.add error: ' +errAdd + '<br/>';
+										processActive = false;
 									} else {
 										editedFileCount += 1;
 										if (editedFileCount === dynamoDBKeys.length) {
@@ -155,14 +176,20 @@ function createCL() {
 								});
 							} else {
 
-								console.log('p4.edit error: ' + errEdit);		
+								processActive = false;
+								console.log('p4.edit error: ' + errEdit);	
+								postlog += 'p4.edit error:' +errEdit + '<br/>';	
 								return;
 							}
 					}
 					// command line example syntax: p4 reopen -c 2445 //ST_Prototypes/ML/SliceOfMine/Assets/Resources/RulesDataTest/28kay.json
 					var options = { changelist : changelist, files: [filename]};
 					p4.reopen( options, function (reopenErr) {
-						if (reopenErr) return console.log(reopenErr);
+						if (reopenErr) {
+							processActive = false;
+							postlog += 'p4.reopen error:' + reopenErr + '<br/>';	
+							return console.log('p4.reopen error:' + reopenErr);
+						}
 						editedFileCount += 1;
 						if (editedFileCount === dynamoDBKeys.length) {
 							fstatAll();
@@ -178,12 +205,21 @@ function createCL() {
 function fstatAll() {
 	var fstats = {};
 	var editedFileCount = 0;
+
 	console.log('fstatEdited');
+	postlog += 'fstatEdited' + '<br/>';	
+
 	dynamoDBKeys.forEach( function(myjsonkey) {
 		var filename = kRulesDataDepotPath+myjsonkey+'.json';
 		console.log("fstating..." + filename);
+		postlog += 'fstating...' + filename + '<br/>';	
+	
 		p4.fstat({files: [filename]}, function(err, result) {
-		  if (err) return console.log(err);
+		  	if (err) {
+		  		 processActive = false;
+		  		 postlog += 'fstating error: ' + err + '<br/>';	
+		 	 	return console.log(err);
+		 	 }
 			fstats[myjsonkey] = {};
 		  	fstats[myjsonkey].clientFile = result.clientFile;
 		  	editedFileCount += 1;
@@ -198,12 +234,16 @@ function fstatAll() {
 // Retrieve all JSON rules data sets from AWS. Add them to fstatsResults object.
 function getJSONfromAWS(fstatResults) {
 	console.log('getJSON');
+	postlog += 'getJSON' + '<br/>';	
+
 	var getItemCompletedCount = 0;
 	dynamoDBKeys.forEach( function(myjsonkey) {
 	 	var table = new AWS.DynamoDB({params: {TableName: 'ptownrules'}}); 
 	 	var keyname =  myjsonkey;
 	    table.getItem({Key: {ptownrules: {S: keyname}}}, function(err, data) {
 	    	if(err) {
+	    		processActive = false;
+	    		postlog += 'getJSON:' + err + '<br/>';	
 			 	return console.log('getJSON:' + err);
 			}
 			fstatResults[myjsonkey].getContent = data.Item.data.S;
@@ -217,13 +257,16 @@ function getJSONfromAWS(fstatResults) {
 
 // replace contents of local JSON rules files with content from AWS.
 function writeUpdates( fstatResults) {
+	postlog += 'writeUpdates' + '<br/>';
 	console.log('writeUpdates');
 	var writtenFileCount = 0;
 	for (var property in fstatResults) {
 	    if (fstatResults.hasOwnProperty(property)) {
-	        //fstatResults[property]
+
 	        fs.writeFile(fstatResults[property].clientFile, fstatResults[property].getContent, function(err) {
 			    if(err) {
+			    	processActive = false;
+			    	postlog += 'ERROR: writeUpdates:' + err + '<br/>';
 			        return console.log('ERROR: writeUpdates:' + err);
 			    } else {
 				    writtenFileCount += 1;
@@ -238,14 +281,20 @@ function writeUpdates( fstatResults) {
 
 // revert unchnged files in pending cl.
 function revertUnchangedUpdates( fstatResults) {
+	postlog += 'revertUnchangedUpdates' + '<br/>';
 	console.log('revertUnchangedUpdates');
 	var revertCalledCount= 0;
 	dynamoDBKeys.forEach( function(myjsonkey) {
 		var filename = kRulesDataDepotPath+myjsonkey+'.json';
 		p4.revert({files: [filename], changelist: workingCL, 'unchanged' : null}, function (err) {
-		  	if (err) console.log(err);
+		  	if (err) {
+		  		processActive = false;
+		  		postlog += 'revertUnchangedUpdates error:' + err + '<br/>';
+		  		console.log(err);
+		  	}
 			revertCalledCount += 1;
 			if (revertCalledCount === dynamoDBKeys.length) {
+				postlog += 'revertUnchangedUpdates completed' + '<br/>';
 				console.log('revertUnchangedUpdates completed');
 				submitUpdates( fstatResults);
 			}
@@ -256,17 +305,35 @@ function revertUnchangedUpdates( fstatResults) {
 // submit cl if there are any files in it, otherwise delete it.
 function submitUpdates( fstatResults) {
 	p4.changelist.view({changelist: workingCL}, function (err, view) {
-		if (err) return console.log(err);
+		if (err) {
+			processActive = false;
+			postlog += err + '<br/>';
+			return console.log(err);
+		}
 		if ( view.files.length === 0) {
-				p4.changelist.delete({changelist: workingCL}, function (err) {
-					if (err) console.log(err);
+			p4.changelist.delete({changelist: workingCL}, function (err) {
+					if (err) {
+						processActive = false;
+						postlog += 'changelist.delete error:' + err + '<br/>';
+						console.log(err);
+					}
+					postlog += 'delete cl completed.' + '<br/>';
 					console.log('delete cl completed.');
+					processActive = false;
 			});
+			processActive = false;
 		} else {
-				p4.changelist.submit({changelist: workingCL}, function (err) {
-					if (err) console.log(err);
+			p4.changelist.submit({changelist: workingCL}, function (err) {
+					if (err) {
+						processActive = false;
+						postlog += 'changelist.submit' + err + '<br/>';
+						console.log(err);
+					}
+					postlog += 'submit completed.' + '<br/>';
 					console.log('submit completed.');
+					processActive = false;
 			});
+			processActive = false;
 		}
 	});
 }

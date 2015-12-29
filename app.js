@@ -5,8 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
+
+var backfillerapi = require('./routes/backfillerapi');
 var backfiller = require('./backfiller/backfiller');
 
 var app = express();
@@ -21,13 +21,33 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+  next();
+})
+.options('*', function(req, res, next){
+    res.end();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
+app.all('/', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+  next();
+ });
+
+//app.use('/', routes);
+app.use('/backfillerapi', backfillerapi);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
+ 
+
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
