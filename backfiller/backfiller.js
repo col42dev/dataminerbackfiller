@@ -6,7 +6,7 @@ var http = require('http');
 
 
 AWS.config.region = 'eu-west-1';
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: ''});
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'eu-west-1:'});
 var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 var kRulesDataDepotPath = '//ST_Prototypes/ML/SliceOfMine/Assets/Resources/RulesData/';
 var dynamoDBKeys = [];
@@ -16,6 +16,7 @@ var postlog = '';
 
 var processActive = false;
 var retryProcessTimeoutId = null;
+var commitComment = '';
 
 console.log('started backfiller...');
 postlog += '<b>started backfiller...</b><br/>';
@@ -26,7 +27,9 @@ module.exports = {
 		return postlog;
 	},
 
-	scan: function() {
+	scan: function(comment) {
+
+		commitComment = comment;
 
 		var d = new Date();
 	
@@ -36,7 +39,10 @@ module.exports = {
 			console.log(log);
 			postlog += log;
 
-	  	  scanDynamoDBTable();
+			console.log('commit comment:' + commitComment);
+			postlog += 'commit comment:' + commitComment;
+
+	  		scanDynamoDBTable();
 		} else {
 			if (retryProcessTimeoutId === null) {
 				postlog += '<b>process failed because backfiller export was already active, retry in 20 seconds.</b>' + d.toString() + '<br/>';
@@ -140,7 +146,7 @@ function createCL() {
 	postlog += 'createCL ...' + '<br/>';
 	console.log('createCL ...');
 	var editedFileCount = 0;
-	p4.changelist.create({description: '[SliceOfMine] automated rules JSON sync from AWS'}, function (err, changelist) {
+	p4.changelist.create({description: '[SliceOfMine] automated rules JSON sync from AWS. ' + commitComment}, function (err, changelist) {
 		if (err) {
 			processActive = false;
 			postlog += 'p4.changelist.create error:' + err + '<br/>';

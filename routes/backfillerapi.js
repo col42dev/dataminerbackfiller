@@ -19,10 +19,13 @@ router.get('/getlog', function(req, res, next) {
 // POST http://localhost:3000/
 router.post('/process', function(req, res) {
 
-    //var message = req.body.message;
+    var comment = req.body.comment;
    	var sendMessage = 'POST message received:<br/>';
+   	 sendMessage = ''+ comment + '<br/>';
 
-   	backfiller.scan();
+   	 //console.log('comment:' + JSON.stringify(req.body));
+
+   	backfiller.scan(comment);
 
     res.send(sendMessage);
 });
